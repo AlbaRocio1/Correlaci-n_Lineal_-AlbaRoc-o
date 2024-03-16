@@ -1,0 +1,119 @@
+---
+title: "Correlación lineal Alba"
+author: "Alba Rocío Rodríguez"
+date: "2024-03-16"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r, echo=TRUE}
+library(readxl)
+data <- as.data.frame(read_excel("C:/Users/albro/OneDrive/Documentos/correlacionlineal/data.xls"))
+View(data)
+print(data)
+```
+#Ejercicio1.Define brevemente el concepto de correlación lineal. 
+La correlación lineal es una medida estadística, utilizada para conocer la relación o cuantificar el grado de variación entre dos variables. En cuanto a la correlación, esta nos permite conocer la intensidad y la dirección de dicha correlación.
+
+#Ejercicio2. ¿Por qué decimos que la correlación lineal es una prueba de correlación paramétrica? ¿En qué se diferencian las pruebas paramétricas de las no paramétricas?
+Es paramétrica porque tiene una distribución normal y la relación entre sus variables es lineal. Las pruebas paramétricas analizan las variables que tienen una distribución normal, mientras que en las pruebas no paramétricas, sus datos no tienen una distribución particular, no están organizados de manera normal.
+
+#Ejercicio3.Calcula la correlación entre las variables almacenadas en la tabla ‘data’. 
+
+```{r, echo=TRUE}
+correlacion_datos <- cor(data)
+print(correlacion_datos)
+```
+#Ejercicio4.Calcula los coeficientes de correlación de las variables junto con el nivel de significancia (p-value) en 1 solo gráfico. Interpreta los resultados.
+
+```{r, echo=TRUE}
+panel.cor <- function(x, y, digits = 2, prefix = "", cex.cor...) {
+  usr <- par("usr")
+  on.exit(par(usr))
+  par(usr = c(0, 1, 0, 1))
+  Cor <- abs(cor(x, y))
+  txt <- paste0(prefix, format(c(Cor, 0.123456789),digits = digits)[1])
+  if(missing(cex.cor...)){
+    cex.cor... <- 0.4 / strwidth(txt)
+  }
+  text(0.5, 0.5, txt,
+       cex = 1 + cex.cor...*Cor)
+}
+#Matriz de correlación
+pairs(data,
+      upper.panel = panel.cor, #Panel de correlación
+      lower.panel = panel.smooth)
+```
+No se encuentra en el gráfico una correlación lineal
+
+#Ejercicio5. Emplea una función para obtener en una matriz de correlación lineal, IC 95% y p-value de todas las variables en el data frame ‘data’.
+
+```{r, echo=TRUE}
+library(correlation)
+matriz <- correlation(data)
+matriz
+```
+#Ejercicio6. Visualiza gráficamente la correlación lineal existente entre las variables ‘longitud’ y ‘peso’.
+```{r, echo=TRUE}
+library(ggpubr)
+library(ggplot2)
+ggscartter(data, x = "altura", y = "peso",
+           add = "reg.line", conf.int = TRUE,
+           cor.coef = TRUE, cor.method = "pearson",
+           xlab = "altura piezas (mm)", ylab = "peso piezas (mg)")
+```
+#Ejercicio7.Emplea la librería `corrplot()` para visualizar la correlación entre variables.
+```{r, echo=TRUE}
+library(corrplot)
+corrplot(cor(data))
+```
+#Ejercicio8. A partir de la siguiente secuencia de valores numéricos:
+• Distancia (km): 1.1,100.2,90.3,5.4,57.5,6.6,34.7,65.8,57.9,86.1
+• Número de cuentas (valor absoluto): 110,2,6,98,40,94,31,5,8,10
+
+a. Crea 2 vectores: 'distancia' y 'n_piezas' para almacenarlos en un data frame
+```{r, echo=TRUE}
+distancia <- c(1.1,100.2,90.3,5.4,57.5,6.6,34.7,65.8,57.9,86.1)
+n_piezas <- c(110,2,6,98,40,94,31,5,8,10)
+datos_2 <- data.frame(distancia, n_piezas)
+print(datos_2)
+```
+b. Calcula el coeficiente de correlación
+```{r, echo=TRUE}
+correlacion_datos_2 <- cor(datos_2)
+print(correlacion_datos_2)
+```
+c. Calcula el nivel de significancia
+```{r, echo=TRUE}
+significancia_datos_2 <- cor.test(datos_2$distancia, datos_2$n_piezas)$conf.int
+print(significancia_datos_2)
+```
+d. Calcula el Intervalo de confianza al 95% en relación con el coeficiente de correlación
+```{r, echo=TRUE}
+intervaloconfianza_datos_2 <- cor.test(datos_2$distancia, datos_2$n_piezas)$conf.int
+print(intervaloconfianza_datos_2)
+```
+e. ¿Qué intensidad y dirección presentan ambas variables?
+Las variables presentan una intensidad de -0.9249824, por lo que la correlación es inversa, cuando una aumenta, la otra variable disminuye.
+
+f. ¿Es significativa esta relación?
+No sabría decir si esta relación es sifnificativa o no con certeza.
+
+g. Resulta apropiado afirmar la correlación (o no) entre variables con un tamaño muestral tan
+reducido (n=10).
+La realización de estudios con un número de muestras tan escaso (10) no es apropiado, mientras que lo ideal sería tener entre 30 y 100 muestras para poder afirmar o no si existe la correlación o no.
+
+#Ejercicio9.9) Explícame con un ejemplo en R la diferencia entre una relación lineal y monótona entre 2 variables.
+La principal diferencia entre la relación lineal y la monótona, es que en la lineal, en la gráfica aparecerá una línea recta, puesto que las variables van en la misma dirección a un ritmo constante. Sin embargo, si es monótona, las variables irán en la misma dirección pero con un ritmo distinto, no es constante.
+
+#Ejercicio10. 10) ¿Qué tipo de prueba de correlación se aplica a las variables que experimentan una relación monótona? Expón un ejemplo en R.
+Se aplica la prueba de correlación de Kendall o la prueba de correlación de Spearman. Ejemplo:
+```{r, echo=TRUE}
+x <- 1:100
+y <- x^6 + rnorm(10)
+correlation_spearman <- cor.test(x, y, method = "spearman")
+print(correlation_spearman)
+```
